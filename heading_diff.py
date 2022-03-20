@@ -1,4 +1,4 @@
-def getHeadingDiff(init, final):
+def getHeadingDiff(init, final): # var används getHeadDiff?
     if init > 360 or init < 0 or final > 360 or final < 0:
         raise Exception("out of range")
     diff = final - init

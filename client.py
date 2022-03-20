@@ -3,12 +3,11 @@
 import socket
 import threading 
  
-# varför ett hårdkodat "command"?
 # msgFromClient = "command"
 
 # bytesToSend = str.encode(msgFromClient)
 
-#serverAddressPort   = ("127.0.0.1", 6789)
+# serverAddressPort   = ("127.0.0.1", 6789)
 
 serverAddressPort = ("192.168.10.1", 8889)
 
@@ -30,22 +29,18 @@ def recv():
 
 
  
-# Varför skickas hårdkodat "command" till drönaren utanför while-loopen? 
+# Varför skickas hårdkodat "command" till drönaren? För att gå in i sdk läge? https://dl-cdn.ryzerobotics.com/downloads/Tello/Tello%20SDK%202.0%20User%20Guide.pdf
 # UDPClientSocket.sendto(bytesToSend, serverAddressPort)
 
-# client.py går inte vidare efter denna linje, utan försöker att lyssna på servern. Vi når aldrig while-true loopen.
 # msgFromServer = UDPClientSocket.recvfrom(bufferSize)
 
-# 
 # msg = "Message from Server {}".format(msgFromServer[0])
 
 # Send to server using created UDP socket
-# Nice to have: påminna om de kommandon man kan använda
-
 
 print ('Tello: command takeoff land flip forward back left right \r\n       up down cw ccw speed speed?\r\n')
 
-#recvThread create
+# vi hanterar recvfrom i paralella trådar istället
 recvThread = threading.Thread(target=recv)
 recvThread.start()
 
@@ -62,8 +57,7 @@ while True:
             break
         bytesToSend = str.encode(cmd)
         sent = UDPClientSocket.sendto(bytesToSend, serverAddressPort)
-
-        # vi hanterar recvfrom i paralella trådar istället
+        
         # msgFromServer = UDPClientSocket.recvfrom(bufferSize)
         
         # msg = "Message from Server {}".format(msgFromServer[0])
