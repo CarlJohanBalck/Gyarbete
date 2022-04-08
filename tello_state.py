@@ -1,4 +1,3 @@
-#from os import getloadavg
 from re import T
 import socket
 from time import sleep
@@ -60,16 +59,19 @@ def loop():
 
             
             global pitch
+            pitch = 0
             for c in telmetry_list[0]:
                 if c.isdigit():
                     pitch = pitch + int(c)
                     
             global vx
+            vx = 0
             for c in telmetry_list[3]:
                 if c.isdigit():
                     vx = vx + int(c)
 
             global vz
+            vz = 0
             for c in telmetry_list[5]:
                 if c.isdigit():
                     vz = vz + int(c)
@@ -84,8 +86,10 @@ def loop():
             if tas_x > 5:
                 if test == 0:
                     # global yaw
+                    yaw = 0
                     for c in telmetry_list[2]:
                       if c.isdigit():
+
                         yaw = yaw + int(c)
                     test += 1
             else:
@@ -122,11 +126,8 @@ def loop():
             x += tmp_x
             y += tmp_y
             z += tmp_z
-            #DELA UPP I VEKTOR KOMPOSANTER FÅ UT X, Y OCH KOLLA MED GRADER OM DET ÄR POSTIV ELLER NEGEATIV
  
                         
-            #Skriv txt fil med kommandon
-            #Hur göra knapp?
 
             #print(out)
 
@@ -175,7 +176,7 @@ if __name__ == "__main__":
    # global y
    # global start_yaw, yaw
     print("TEST", x, y, start_yaw, yaw)
-    distance = int(math.sqrt(math.pow(x, 2)) + int(math.pow(y, 2)))
+    distance = math.sqrt(int(math.pow(x, 2) + int(math.pow(y, 2)))) 
 
     final_diff = heading_diff.getHeadingDiff(start_yaw, yaw)
 
@@ -199,22 +200,3 @@ if __name__ == "__main__":
     commands = [rotate, str_forward, "land"]
 
     tello_test.runCommands(commands)
-
-
-
-
-
-
-    
-
-
-
-
- 
-
-
-#        curses.echo()
-#        curses.nocbreak()
-#        curses.endwin()
-
-
