@@ -1,5 +1,6 @@
 from re import T
 import socket
+import re
 from time import sleep
 import math
 #import curses
@@ -23,14 +24,13 @@ tas_z = 0
 vx = 0
 vz = 0
 test = 0
-angel = 0
+angle = 0
 diff = 0
 
+def numbers(s):
+    return int(re.search(r"-?\d+", s).group(0))
 
-def loop():   
-
-
-
+def loop():
     tello_ip = '192.168.10.1'
     tello_port = 8889
     tello_adderss = (tello_ip, tello_port)
@@ -49,62 +49,73 @@ def loop():
             response = response.decode('utf-8')
             out = response.replace(';', ';\n')
             out = 'Tello State:\n' + out
-            telmetry_list = response.split(";")
+            telemetry_list = response.split(";")
 
             global start_yaw
             if index == 1:
-                for c in telmetry_list[2]:
-                    if c.isdigit():
-                        start_yaw = start_yaw + int(c)
+                start_yaw = numbers(telemetry_list[2])
+                if(start_yaw < 0):
+                    start_yaw = 360 + start_yaw
+                # for c in telemetry_list[2]:
+                #     if c.isdigit():
+                #         start_yaw = start_yaw + int(c)
 
-            
             global pitch
-            pitch = 0
-            for c in telmetry_list[0]:
-                if c.isdigit():
-                    pitch = pitch + int(c)
+            pitch = -1 * numbers(telemetry_list[0])
+            ## With the code below, we only parse the last digit of numbers larger than 9 -> pitch:10 gets parsed into pitch:0
+            ## Why do we keep adding to pitch? For each run through we'll get a pitch which just keeps on rising which we don't want (?)
+            # for c in telemetry_list[0]:
+            #     if c.isdigit():
+            #         pitch = pitch + int(c)
                     
             global vx
-            vx = 0
-            for c in telmetry_list[3]:
-                if c.isdigit():
-                    vx = vx + int(c)
+            vx = numbers(telemetry_list[3])
+            # vx = 0
+            # for c in telemetry_list[3]:
+            #     if c.isdigit():
+            #         vx = vx + int(c)
 
             global vz
-            vz = 0
-            for c in telmetry_list[5]:
-                if c.isdigit():
-                    vz = vz + int(c)
-
+            vz = numbers(telemetry_list[5])
+            # vz = 0
+            # for c in telemetry_list[5]:
+            #     if c.isdigit():
+            #         vz = vz + int(c)
 
             global tas_x
             global tas_z
-            tas_x = (vx * math.cos(pitch) - vz * math.sin(pitch))
-            tas_z = (vx * math.sin(pitch) + vz * math.cos(pitch))
+            tas_x = (vx * math.cos(math.radians(pitch)) - (vz * math.sin(math.radians(pitch))))
+            tas_z = (vx * math.sin(math.radians(pitch)) + (vz * math.cos(math.radians(pitch))))
 
             global test
             if tas_x > 5:
                 if test == 0:
                     # global yaw
-                    yaw = 0
-                    for c in telmetry_list[2]:
-                      if c.isdigit():
-
-                        yaw = yaw + int(c)
+                    yaw = numbers(telemetry_list[2])
+                    if(yaw < 0 ):
+                        yaw = 360 + yaw
+                    # yaw = 0
+                    # for c in telemetry_list[2]:
+                    #   if c.isdigit():
+                    #     yaw = yaw + int(c)
                     test += 1
             else:
                 test = 0
                 global tmp_1
-                tmp_1 = 0
-                for c in telmetry_list[2]:
-                    if c.isdigit():
-                        tmp_1 = tmp_1 + int(c)
+                # tmp_1 = 0
+
+                tmp_1 = numbers(telemetry_list[2])
+                # for c in telemetry_list[2]:
+                #     if c.isdigit():
+                #         tmp_1 = tmp_1 + int(c)
+                if(tmp_1 < 0):
+                    tmp_1 = 360 + tmp_1
                 global diff
                 print("TEMP RIKTING", tmp_1)
                 diff = heading_diff.getHeadingDiff(yaw, tmp_1)
-                global angel
-                angel = 180 - diff
-                if angel < 0:
+                global angle
+                angle = 180 - diff
+                if angle < 0:
                     raise ArithmeticError
             
             global tmp_x
